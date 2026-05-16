@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% set role_label = "Lehrkraft — Live-Steuerung" %}
+{% block title %}Live-Steuerung — {{ evaluation.title }}{% endblock %}
+
+{% set phase_labels = {
+  "prepared": "Vorbereitet",
+  "active": "Aktiviert",
+  "joining": "Beitrittsphase",
+  "reading": "Lesephase",
+  "answering": "Antwortphase",
+  "paused": "Pausiert",
+  "closed": "Geschlossen",
+  "deactivated": "Deaktiviert"
+} %}
+
+{% block content %}
+<header class="page-title">
+  <div>
+    <h1>{{ evaluation.title }}</h1>
+    <p class="hint">{{ evaluation.teacher_name }}</p>
+  </div>
+  <span class="pill is-{{ state.phase }}">{{ phase_labels.get(state.phase, state.phase) }}</span>
+</header>
+
+<div class="teacher-grid">
+  <section class="status-card" aria-label="Live-Steuerung Status">
+    <div class="label">Status</div>
+    <div class="phase">{{ phase_labels.get(state.phase, state.phase) }}</div>
+    <div class="item-info">
+      <div class="stat">
+        <span class="stat-label">Aktuelles Item</span>
+        <span class="stat-value">
+          {% if state.current_item_index is not none %}
+            Item {{ state.current_item_index + 1 }}
+          {% else %}—{% endif %}
+        </span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Beitritte</span>
+        <span class="stat-value">{{ evaluation.participant_count }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card meta-card">
+    <h2>Evaluation</h2>
+    <dl class="meta">
+      <dt>Klasse</dt><dd>{{ evaluation.class_group }}</dd>
+      <dt>Fach</dt><dd>{{ evaluation.subject }}</dd>
+      <dt>Lehrkraft</dt><dd>{{ evaluation.teacher_name }}</dd>
+    </dl>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Steuerung</h2>
+  <p class="hint">
+    Reihenfolge: <em>Starten</em> → <em>Item zeigen</em> → <em>Antworten freigeben</em>
+    → <em>Naechstes Item</em>. Du kannst jederzeit pausieren oder schliessen.
+  </p>
+  <div class="teacher-actions">
+    <div class="group">
+      <form method="post" action="/teacher/{{ evaluation.id }}/start">
+        <button type="submit">Starten</button>
+      </form>
+      <form method="post" action="/teacher/{{ evaluation.id }}/item">
+        <button type="submit" class="secondary">Item zeigen</button>
+      </form>
+      <form method="post" action="/teacher/{{ evaluation.id }}/answers">
+        <button type="submit" class="secondary">Antworten freigeben</button>
+      </form>
+      <form method="post" action="/teacher/{{ evaluation.id }}/finish">
+        <button type="submit">Naechstes Item</button>
+      </form>
+    </div>
+    <div class="group">
+      <form method="post" action="/teacher/{{ evaluation.id }}/pause">
+        <button type="submit" class="ghost">Pausieren</button>
+      </form>
+      <form method="post" action="/teacher/{{ evaluation.id }}/resume">
+        <button type="submit" class="ghost">Fortsetzen</button>
+      </form>
+    </div>
+    <div class="group">
+      <form method="post" action="/teacher/{{ evaluation.id }}/close"
+            onsubmit="return confirm('Evaluation jetzt endgueltig schliessen?');">
+        <button type="submit" class="danger">Schliessen</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,21 @@
+[Unit]
+Description=Lehr-Evaluation web app
+After=network.target
+
+[Service]
+Type=simple
+User=lehr-eval
+Group=lehr-eval
+WorkingDirectory=/opt/lehr-eval
+StateDirectory=lehr-eval
+Environment=LEHR_EVAL_DATABASE_PATH=/var/lib/lehr-eval/eval.db
+Environment=LEHR_EVAL_BASE_URL=https://eval.schule.example
+Environment=LEHR_EVAL_ADMIN_PASSWORD=change-this-before-start
+ExecStart=/opt/lehr-eval/.venv/bin/uvicorn --app-dir /opt/lehr-eval/src lehr_eval.app:create_app --factory --host 127.0.0.1 --port 8000
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

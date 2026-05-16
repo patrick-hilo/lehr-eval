@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Lehr-Evaluation{% endblock %}</title>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="stylesheet" href="/static/app.css">
+  </head>
+  <body>
+    {% if not hide_header %}
+    <header class="site-header">
+      <span class="brand"><span class="brand-dot"></span>Lehr-Evaluation</span>
+      {% if role_label %}
+      <span class="role-tag">{{ role_label }}</span>
+      {% endif %}
+    </header>
+    {% endif %}
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+    {% if event_url %}
+    <script
+      src="/static/live.js"
+      defer
+      data-event-url="{{ event_url }}"
+      data-live-role="{{ live_role }}"
+      data-current-phase="{{ current_phase if current_phase is not none else '' }}"
+      data-current-item="{{ current_item if current_item is not none else '' }}"
+    ></script>
+    {% endif %}
+  </body>
+</html>

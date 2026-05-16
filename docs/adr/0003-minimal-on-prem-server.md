@@ -1,0 +1,3 @@
+# Minimal on-prem server with SQLite
+
+The implementation will target a minimal server operated in the school network instead of a managed cloud service. This supersedes the earlier managed-service preference in ADR 0001 because the school now wants to evaluate local operation for stronger local data control, accepting the operational duties for updates, backups, TLS, and network reachability. The application will use SQLite in WAL mode as the primary transactional database; DuckDB is not used as the primary application database because its concurrency model is better suited to analytics than multi-client live web workflows.

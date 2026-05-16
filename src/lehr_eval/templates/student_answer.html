@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% set role_label = "Schueler" %}
+{% block title %}Evaluation{% endblock %}
+
+{% block content %}
+<div class="student-shell">
+  <div class="student-header">
+    <span>Dein Tiername: <strong class="animal-code">{{ animal_code }}</strong></span>
+    {% if item_number and item_total %}
+    <span class="item-progress">Frage {{ item_number }} von {{ item_total }}</span>
+    {% endif %}
+  </div>
+
+  {% if item_text %}
+  <section class="item-card">
+    <span class="eyebrow">{% if show_options %}Antwortphase{% else %}Lesephase{% endif %}</span>
+    <p class="item-text">{{ item_text }}</p>
+  </section>
+  {% else %}
+  <section class="card">
+    <p class="hint">Bitte warten — die Lehrkraft startet gleich die naechste Frage.</p>
+  </section>
+  {% endif %}
+
+  {% if show_options %}
+  <form method="post" action="{{ answer_path }}" class="answer-form" id="answer-form">
+    <fieldset>
+      <legend class="visually-hidden">Antwort auswaehlen</legend>
+      {% for value in range(4) %}
+      <label class="answer-option{% if submitted_value == value %} is-selected{% endif %}">
+        <input
+          type="radio"
+          name="value"
+          value="{{ value }}"
+          required
+          {% if submitted_value == value %}checked{% endif %}
+        >
+        <span class="answer-number">{{ value }}</span>
+        <span class="answer-label">{{ answer_labels[value] }}</span>
+      </label>
+      {% endfor %}
+    </fieldset>
+    <div class="form-actions">
+      <button type="submit">
+        {% if submitted_value is not none %}Antwort aendern{% else %}Antwort abgeben{% endif %}
+      </button>
+      {% if submitted_value is not none %}
+      <p class="confirmation" role="status">
+        Gespeichert: <strong>{{ submitted_value }} — {{ answer_labels[submitted_value] }}</strong>.
+        Du kannst noch aendern, bis die Lehrkraft weitergeht.
+      </p>
+      {% else %}
+      <p class="hint">Du kannst deine Antwort danach noch aendern.</p>
+      {% endif %}
+    </div>
+  </form>
+  {% elif item_text %}
+  <p class="hint">Lies die Frage in Ruhe. Die Antwortmoeglichkeiten kommen gleich.</p>
+  {% endif %}
+</div>
+{% endblock %}

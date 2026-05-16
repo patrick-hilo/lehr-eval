@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% set role_label = "Schueler" %}
+{% block title %}{% if rejoin_only %}Erneut beitreten{% else %}Bitte warten{% endif %}{% endblock %}
+
+{% block content %}
+<div class="student-shell">
+  {% if rejoin_only %}
+  <section class="card">
+    <h1>Erneut beitreten</h1>
+    <p>Die Evaluation laeuft bereits. Neue Teilnahmen sind nicht mehr moeglich.</p>
+    <p class="hint">Wenn du schon einen Tiernamen hast, kannst du damit wieder beitreten.</p>
+  </section>
+  {% else %}
+  <div class="student-header">
+    <span>Dein Tiername: <strong class="animal-code">{{ animal_code }}</strong></span>
+    <span class="pill is-joining">Beitrittsphase</span>
+  </div>
+  <section class="item-card">
+    <span class="eyebrow">Beitrittsphase</span>
+    <p class="item-text">Bitte warten — die Lehrkraft startet gleich die erste Frage.</p>
+  </section>
+  {% endif %}
+
+  <section class="card">
+    <h2>Mit Tiername erneut beitreten</h2>
+    <p class="hint">Nur wenn dir die Verbindung verloren geht.</p>
+    <form method="post" action="{{ rejoin_path }}">
+      <label class="field">
+        <span class="field-label">Tiername</span>
+        <input id="animal_code" name="animal_code" type="text" autocomplete="off" required>
+      </label>
+      <button type="submit">Erneut beitreten</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

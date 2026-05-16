@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% set role_label = "Administration" %}
+{% block title %}Evaluationen{% endblock %}
+
+{% set phase_labels = {
+  "prepared": "Vorbereitet",
+  "active": "Aktiviert",
+  "joining": "Beitrittsphase",
+  "reading": "Lesephase",
+  "answering": "Antwortphase",
+  "paused": "Pausiert",
+  "closed": "Geschlossen",
+  "deactivated": "Deaktiviert"
+} %}
+
+{% block content %}
+<header class="page-title">
+  <div>
+    <h1>Evaluationen</h1>
+    <p class="hint">Stammdaten importieren, Evaluationen aktivieren, Auswertungen herunterladen.</p>
+  </div>
+  <form method="post" action="/admin/logout">
+    <button class="ghost" type="submit">Abmelden</button>
+  </form>
+</header>
+
+<section class="card">
+  <h2>Stammdaten importieren</h2>
+  <p class="hint">
+    Akzeptiert <code>.csv</code> oder <code>.xlsx</code>. Spalten:
+    schuljahr, klassenstufe, klasse_lerngruppe, fach, lehrkraft_name,
+    lehrkraft_kennung, erwartete_teilnehmerzahl.
+  </p>
+  <form method="post" action="/admin/import" enctype="multipart/form-data" class="upload-row">
+    <input type="file" name="csv_file"
+      accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      required>
+    <button type="submit">Stammdaten importieren</button>
+  </form>
+</section>
+
+<section>
+  <div class="filter-bar">
+    <a class="filter-chip {% if not active_filter %}is-current{% endif %}"
+       href="/admin/evaluations">Alle <span class="count">{{ total_count }}</span></a>
+    {% for option in filter_options %}
+    {% if status_counts.get(option, 0) > 0 %}
+    <a class="filter-chip {% if active_filter == option %}is-current{% endif %}"
+       href="/admin/evaluations?status={{ option }}">
+      {{ phase_labels.get(option, option) }}
+      <span class="count">{{ status_counts.get(option, 0) }}</span>
+    </a>
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  <form method="post" action="/admin/evaluations/bulk" id="bulk-form">
+    {% if active_filter %}<input type="hidden" name="status" value="{{ active_filter }}">{% endif %}
+    <div class="bulk-bar" data-bulk-bar>
+      <span class="bulk-summary"><span data-bulk-count>0</span> ausgewaehlt</span>
+      <button type="submit" name="action" value="activate" class="secondary"
+              data-bulk-action>Bulk: Aktivieren</button>
+      <button type="submit" name="action" value="deactivate" class="secondary"
+              data-bulk-action>Bulk: Deaktivieren</button>
+      <button type="submit" name="action" value="delete" class="danger"
+              data-bulk-action
+              onclick="return confirm('Ausgewaehlte Evaluationen wirklich loeschen?');"
+              >Bulk: Loeschen</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="check-col">
+              <input type="checkbox" id="select-all" aria-label="Alle auswaehlen">
+            </th>
+            <th>Titel</th>
+            <th>Lehrkraft</th>
+            <th>Klasse</th>
+            <th>Fach</th>
+            <th>Status</th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for evaluation in evaluations %}
+          <tr>
+            <td class="check-col">
+              <input type="checkbox" name="evaluation_ids" value="{{ evaluation.id }}"
+                     class="row-check" aria-label="Auswaehlen">
+            </td>
+            <td><strong>{{ evaluation.title }}</strong></td>
+            <td>{{ evaluation.teacher_name }}</td>
+            <td>{{ evaluation.class_group }}</td>
+            <td>{{ evaluation.subject }}</td>
+            <td><span class="pill is-{{ evaluation.status }}">{{ phase_labels.get(evaluation.status, evaluation.status) }}</span></td>
+            <td>
+              <div class="row-actions">
+                {% if evaluation.status == "prepared" %}
+                <button type="submit" form="row-{{ evaluation.id }}-activate" class="secondary">Aktivieren</button>
+                {% elif evaluation.status == "active" %}
+                <button type="submit" form="row-{{ evaluation.id }}-deactivate" class="secondary">Deaktivieren</button>
+                {% endif %}
+                {% if evaluation.status in ["prepared", "deactivated"] %}
+                <button type="submit" form="row-{{ evaluation.id }}-delete" class="ghost"
+                        onclick="return confirm('Evaluation wirklich loeschen?');">Loeschen</button>
+                {% endif %}
+                <a class="btn ghost"
+                   href="/admin/evaluations/{{ evaluation.id }}/qr-material.zip"
+                   download="qr-material-{{ evaluation.id }}.zip">QR-Material</a>
+                {% if evaluation.status == "closed" %}
+                <a class="btn secondary"
+                   href="/admin/evaluations/{{ evaluation.id }}/export.xlsx"
+                   download="evaluation-{{ evaluation.id }}.xlsx">XLSX</a>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7"><p class="hint">Keine Evaluationen in diesem Filter.</p></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </form>
+
+  {# Separate, hidden per-row forms so the row buttons work without nesting forms #}
+  {% for evaluation in evaluations %}
+  <form method="post" id="row-{{ evaluation.id }}-activate" action="/admin/evaluations/{{ evaluation.id }}/activate"></form>
+  <form method="post" id="row-{{ evaluation.id }}-deactivate" action="/admin/evaluations/{{ evaluation.id }}/deactivate"></form>
+  <form method="post" id="row-{{ evaluation.id }}-delete" action="/admin/evaluations/{{ evaluation.id }}/delete"></form>
+  {% endfor %}
+</section>
+
+<script>
+(function () {
+  const form = document.getElementById('bulk-form');
+  if (!form) return;
+  const selectAll = form.querySelector('#select-all');
+  const checks = () => Array.from(form.querySelectorAll('input.row-check'));
+  const countEl = form.querySelector('[data-bulk-count]');
+  const bar = form.querySelector('[data-bulk-bar]');
+  function refresh() {
+    const sel = checks().filter(c => c.checked).length;
+    countEl.textContent = sel;
+    bar.classList.toggle('is-active', sel > 0);
+    if (selectAll) {
+      const all = checks();
+      selectAll.checked = all.length > 0 && sel === all.length;
+      selectAll.indeterminate = sel > 0 && sel < all.length;
+    }
+  }
+  if (selectAll) {
+    selectAll.addEventListener('change', () => {
+      checks().forEach(c => { c.checked = selectAll.checked; });
+      refresh();
+    });
+  }
+  form.addEventListener('change', (e) => {
+    if (e.target && e.target.classList && e.target.classList.contains('row-check')) {
+      refresh();
+    }
+  });
+  refresh();
+})();
+</script>
+{% endblock %}

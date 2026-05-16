@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% set role_label = "Administration" %}
+{% block title %}Administration — Anmeldung{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+  <div class="auth-card">
+    <h1>Anmeldung</h1>
+    <p class="lede">Melde dich mit dem Admin-Passwort der Schule an.</p>
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+    <form method="post" action="/admin/login">
+      <label class="field">
+        <span class="field-label">Passwort</span>
+        <input id="password" name="password" type="password" required autofocus>
+      </label>
+      <div class="actions">
+        <button type="submit">Anmelden</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
