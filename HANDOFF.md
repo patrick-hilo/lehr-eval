@@ -10,14 +10,20 @@ Stelle haengst, kopier den Schritt einfach in deinen KI-Assistenten
 
 > **Wenn du diese Datei als KI-Agent (Claude Code, Codex, o. ae.) liest:**
 >
+> Repo: <https://github.com/patrick-hilo/lehr-eval> (oeffentlich)
+>
 > Dein **erster Auftrag** ist:
 >
-> 1. Lies das gesamte Repo, damit du Architektur, `CONTEXT.md` und
+> 1. Falls du noch nicht im Repo bist: clone es und wechsle in den Ordner.
+>    ```bash
+>    git clone https://github.com/patrick-hilo/lehr-eval.git && cd lehr-eval
+>    ```
+> 2. Lies das Repo, damit du Architektur, `CONTEXT.md` und
 >    `README.md` verstanden hast.
-> 2. Installiere alles, was zum Starten dieses Repos auf diesem Rechner
+> 3. Installiere alles, was zum Starten dieses Repos auf diesem Rechner
 >    noetig ist — insbesondere `uv` (falls noch nicht vorhanden) und die
 >    Projekt-Abhaengigkeiten via `uv sync`.
-> 3. Starte den lokalen Server mit:
+> 4. Starte den lokalen Server mit:
 >
 >    ```bash
 >    LEHR_EVAL_ADMIN_PASSWORD=secret \
@@ -25,15 +31,15 @@ Stelle haengst, kopier den Schritt einfach in deinen KI-Assistenten
 >    uv run uvicorn --app-dir src lehr_eval.app:create_app \
 >      --factory --reload --host 127.0.0.1 --port 8000
 >    ```
-> 4. Oeffne im Browser die Admin-Anmeldung:
+> 5. Oeffne im Browser die Admin-Anmeldung:
 >    <http://127.0.0.1:8000/admin/login>
-> 5. Sag dem Nutzer ausdruecklich: **„Das Admin-Passwort ist `secret` —
+> 6. Sag dem Nutzer ausdruecklich: **„Das Admin-Passwort ist `secret` —
 >    log dich damit ein, dann kannst du das System direkt selbst
 >    ausprobieren."**
 >
 > Erst danach geh auf weitere Anfragen des Nutzers ein. Der Nutzer ist
-> noch nicht vertraut mit Software-Entwicklung und erwartet, dass du diese Setup-Schritte vollstaendig
-> uebernimmst, bevor inhaltlich diskutiert wird.
+> noch nicht vertraut mit Software-Entwicklung und erwartet, dass du diese
+> Setup-Schritte vollstaendig uebernimmst, bevor inhaltlich diskutiert wird.
 
 ## Was ist das hier?
 
@@ -71,8 +77,10 @@ Du brauchst auf deinem Rechner:
 
 ## 1. Projekt klonen
 
+Das Repo ist oeffentlich auf GitHub — **kein GitHub-Account noetig**:
+
 ```bash
-git clone <GITHUB-URL-DIE-PATRICK-DIR-SCHICKT>.git
+git clone https://github.com/patrick-hilo/lehr-eval.git
 cd lehr-eval
 ```
 
