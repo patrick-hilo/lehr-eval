@@ -151,6 +151,20 @@ button:focus-visible, .btn:focus-visible {
   outline: 3px solid var(--accent-soft);
   outline-offset: 2px;
 }
+button:disabled, button[aria-disabled="true"],
+.btn:disabled, .btn[aria-disabled="true"] {
+  background: var(--surface-2);
+  color: var(--text-soft);
+  border: 1px solid var(--border);
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 1;
+}
+button:disabled:hover, button[aria-disabled="true"]:hover,
+.btn:disabled:hover, .btn[aria-disabled="true"]:hover {
+  background: var(--surface-2);
+  transform: none;
+}
 button.secondary, .btn.secondary {
   background: var(--surface);
   color: var(--accent-ink);

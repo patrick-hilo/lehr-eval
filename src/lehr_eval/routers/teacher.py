@@ -57,61 +57,50 @@ def create_teacher_router(db_path: Path, event_hub: EventHub) -> APIRouter:
         mark_teacher_authenticated(request, evaluation["id"], evaluation["teacher_token"])
         return render_live_page(request, db_path, evaluation["id"])
 
+    def _apply(action_fn, evaluation_id: int) -> RedirectResponse:
+        try:
+            state = action_fn(db_path, evaluation_id)
+            publish_live_state(event_hub, state)
+        except ValueError:
+            # Action ist in der aktuellen Phase nicht erlaubt — Seite einfach
+            # neu laden, der Lehrkraft wird der korrekte Status angezeigt.
+            pass
+        return redirect_to_teacher(db_path, evaluation_id)
+
     @router.post("/teacher/{evaluation_id}/start")
     def start(request: Request, evaluation_id: int) -> RedirectResponse:
         require_teacher(request, db_path, evaluation_id)
-        publish_live_state(
-            event_hub, run_live_action(start_joining, db_path, evaluation_id)
-        )
-        return redirect_to_teacher(db_path, evaluation_id)
+        return _apply(start_joining, evaluation_id)
 
     @router.post("/teacher/{evaluation_id}/item")
     def show_item(request: Request, evaluation_id: int) -> RedirectResponse:
         require_teacher(request, db_path, evaluation_id)
-        publish_live_state(
-            event_hub, run_live_action(show_first_item, db_path, evaluation_id)
-        )
-        return redirect_to_teacher(db_path, evaluation_id)
+        return _apply(show_first_item, evaluation_id)
 
     @router.post("/teacher/{evaluation_id}/answers")
     def show_answers(request: Request, evaluation_id: int) -> RedirectResponse:
         require_teacher(request, db_path, evaluation_id)
-        publish_live_state(
-            event_hub, run_live_action(open_answer_phase, db_path, evaluation_id)
-        )
-        return redirect_to_teacher(db_path, evaluation_id)
+        return _apply(open_answer_phase, evaluation_id)
 
     @router.post("/teacher/{evaluation_id}/finish")
     def finish_item(request: Request, evaluation_id: int) -> RedirectResponse:
         require_teacher(request, db_path, evaluation_id)
-        publish_live_state(
-            event_hub, run_live_action(finish_current_item, db_path, evaluation_id)
-        )
-        return redirect_to_teacher(db_path, evaluation_id)
+        return _apply(finish_current_item, evaluation_id)
 
     @router.post("/teacher/{evaluation_id}/pause")
     def pause(request: Request, evaluation_id: int) -> RedirectResponse:
         require_teacher(request, db_path, evaluation_id)
-        publish_live_state(
-            event_hub, run_live_action(pause_evaluation, db_path, evaluation_id)
-        )
-        return redirect_to_teacher(db_path, evaluation_id)
+        return _apply(pause_evaluation, evaluation_id)
 
     @router.post("/teacher/{evaluation_id}/resume")
     def resume(request: Request, evaluation_id: int) -> RedirectResponse:
         require_teacher(request, db_path, evaluation_id)
-        publish_live_state(
-            event_hub, run_live_action(resume_evaluation, db_path, evaluation_id)
-        )
-        return redirect_to_teacher(db_path, evaluation_id)
+        return _apply(resume_evaluation, evaluation_id)
 
     @router.post("/teacher/{evaluation_id}/close")
     def close(request: Request, evaluation_id: int) -> RedirectResponse:
         require_teacher(request, db_path, evaluation_id)
-        publish_live_state(
-            event_hub, run_live_action(close_evaluation, db_path, evaluation_id)
-        )
-        return redirect_to_teacher(db_path, evaluation_id)
+        return _apply(close_evaluation, evaluation_id)
 
     return router
 

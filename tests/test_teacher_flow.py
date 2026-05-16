@@ -99,8 +99,8 @@ def test_teacher_live_actions_advance_state_and_close(tmp_path: Path):
     assert evaluation_status(db_path, qr.evaluation_id) == "closed"
 
 
-def test_teacher_invalid_live_action_returns_409(tmp_path: Path):
-    client, qr, _db_path = setup_client(tmp_path)
+def test_teacher_invalid_live_action_redirects_without_state_change(tmp_path: Path):
+    client, qr, db_path = setup_client(tmp_path)
     login = client.post(qr.teacher_path, data={"pin": qr.teacher_pin})
     assert login.status_code == 200
     start = client.post(f"/teacher/{qr.evaluation_id}/start", follow_redirects=False)
@@ -110,7 +110,10 @@ def test_teacher_invalid_live_action_returns_409(tmp_path: Path):
         f"/teacher/{qr.evaluation_id}/answers", follow_redirects=False
     )
 
-    assert response.status_code == 409
+    # Invalide Aktion fuehrt nicht mehr zu einer JSON-Fehlerseite,
+    # sondern zu einem Redirect auf die Live-Seite (kein State-Wechsel).
+    assert response.status_code == 303
+    assert evaluation_status(db_path, qr.evaluation_id) == "joining"
 
 
 def test_teacher_can_pause_and_resume_prior_phase(tmp_path: Path):

@@ -14,6 +14,29 @@
   "deactivated": "Deaktiviert"
 } %}
 
+{% set actions_by_phase = {
+  "prepared":    [],
+  "active":      ["start"],
+  "joining":     ["item", "pause", "close"],
+  "reading":     ["answers", "pause", "close"],
+  "answering":   ["finish", "pause", "close"],
+  "paused":      ["resume", "close"],
+  "closed":      [],
+  "deactivated": []
+} %}
+{% set allowed = actions_by_phase.get(state.phase, []) %}
+
+{% set hints_by_phase = {
+  "prepared":    "Die Administration muss die Evaluation zuerst aktivieren.",
+  "active":      "Klick Starten, um die Beitrittsphase zu beginnen.",
+  "joining":     "Schueler koennen jetzt beitreten. Klick Item zeigen, sobald alle da sind.",
+  "reading":     "Schueler sehen die Frage. Klick Antworten freigeben, sobald sie soweit sind.",
+  "answering":   "Schueler beantworten. Klick Naechstes Item, wenn alle fertig sind.",
+  "paused":      "Pausiert. Klick Fortsetzen, um weiterzumachen.",
+  "closed":      "Diese Evaluation ist geschlossen. Es sind keine Aktionen mehr moeglich.",
+  "deactivated": "Diese Evaluation ist deaktiviert.",
+} %}
+
 {% block content %}
 <header class="page-title">
   <div>
@@ -55,39 +78,41 @@
 
 <section class="card">
   <h2>Steuerung</h2>
-  <p class="hint">
-    Reihenfolge: <em>Starten</em> → <em>Item zeigen</em> → <em>Antworten freigeben</em>
-    → <em>Naechstes Item</em>. Du kannst jederzeit pausieren oder schliessen.
-  </p>
+  <p class="hint">{{ hints_by_phase.get(state.phase, "") }}</p>
+
+  {% if allowed %}
   <div class="teacher-actions">
     <div class="group">
       <form method="post" action="/teacher/{{ evaluation.id }}/start">
-        <button type="submit">Starten</button>
+        <button type="submit" {% if "start" not in allowed %}disabled aria-disabled="true"{% endif %}>Starten</button>
       </form>
       <form method="post" action="/teacher/{{ evaluation.id }}/item">
-        <button type="submit" class="secondary">Item zeigen</button>
+        <button type="submit" class="secondary" {% if "item" not in allowed %}disabled aria-disabled="true"{% endif %}>Item zeigen</button>
       </form>
       <form method="post" action="/teacher/{{ evaluation.id }}/answers">
-        <button type="submit" class="secondary">Antworten freigeben</button>
+        <button type="submit" class="secondary" {% if "answers" not in allowed %}disabled aria-disabled="true"{% endif %}>Antworten freigeben</button>
       </form>
       <form method="post" action="/teacher/{{ evaluation.id }}/finish">
-        <button type="submit">Naechstes Item</button>
+        <button type="submit" {% if "finish" not in allowed %}disabled aria-disabled="true"{% endif %}>Naechstes Item</button>
       </form>
     </div>
     <div class="group">
       <form method="post" action="/teacher/{{ evaluation.id }}/pause">
-        <button type="submit" class="ghost">Pausieren</button>
+        <button type="submit" class="ghost" {% if "pause" not in allowed %}disabled aria-disabled="true"{% endif %}>Pausieren</button>
       </form>
       <form method="post" action="/teacher/{{ evaluation.id }}/resume">
-        <button type="submit" class="ghost">Fortsetzen</button>
+        <button type="submit" class="ghost" {% if "resume" not in allowed %}disabled aria-disabled="true"{% endif %}>Fortsetzen</button>
       </form>
     </div>
     <div class="group">
       <form method="post" action="/teacher/{{ evaluation.id }}/close"
             onsubmit="return confirm('Evaluation jetzt endgueltig schliessen?');">
-        <button type="submit" class="danger">Schliessen</button>
+        <button type="submit" class="danger" {% if "close" not in allowed %}disabled aria-disabled="true"{% endif %}>Schliessen</button>
       </form>
     </div>
   </div>
+  {% else %}
+  <p class="hint">Keine Aktion in dieser Phase moeglich.</p>
+  {% endif %}
 </section>
 {% endblock %}

@@ -109,8 +109,12 @@ def create_student_router(
                 item_index=int(item_index),
                 value=value,
             )
-        except ValueError as error:
-            raise HTTPException(status.HTTP_409_CONFLICT, detail=str(error)) from error
+        except ValueError:
+            # Antwortphase ist vorbei oder Item hat gewechselt.
+            # Statt Fehlerseite: Schueler-Seite neu laden (zeigt aktuellen Stand).
+            return RedirectResponse(
+                f"/e/{student_token}", status_code=status.HTTP_303_SEE_OTHER
+            )
 
         publish_student_progress(event_hub, evaluation)
         return RedirectResponse(
