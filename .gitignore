@@ -10,3 +10,4 @@ data/
 secret_key.txt
 .playwright-mcp/
 .entire/
+.claude/
