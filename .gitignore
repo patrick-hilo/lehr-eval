@@ -11,3 +11,5 @@ secret_key.txt
 .playwright-mcp/
 .entire/
 .claude/
+.lehr-eval.pid
+.lehr-eval.log

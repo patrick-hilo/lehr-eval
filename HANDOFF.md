@@ -23,15 +23,15 @@ Stelle haengst, kopier den Schritt einfach in deinen KI-Assistenten
 > 3. Installiere alles, was zum Starten dieses Repos auf diesem Rechner
 >    noetig ist — insbesondere `uv` (falls noch nicht vorhanden) und die
 >    Projekt-Abhaengigkeiten via `uv sync`.
-> 4. Starte den lokalen Server mit:
+> 4. Starte den lokalen Server. Am einfachsten:
 >
 >    ```bash
->    LEHR_EVAL_ADMIN_PASSWORD=secret \
->    LEHR_EVAL_BASE_URL=http://127.0.0.1:8000 \
->    uv run uvicorn --app-dir src lehr_eval.app:create_app \
->      --factory --reload --host 127.0.0.1 --port 8000
+>    ./start.sh
 >    ```
-> 5. Oeffne im Browser die Admin-Anmeldung:
+>
+>    Das Skript syncht Abhaengigkeiten, startet uvicorn und oeffnet den
+>    Browser. Server stoppen mit `./stop.sh`.
+> 5. Falls der Browser nicht automatisch aufgeht, oeffne manuell:
 >    <http://127.0.0.1:8000/admin/login>
 > 6. Sag dem Nutzer ausdruecklich: **„Das Admin-Passwort ist `secret` —
 >    log dich damit ein, dann kannst du das System direkt selbst
@@ -102,6 +102,35 @@ uv run pytest -q
 Du solltest am Ende sehen: `121 passed` (oder mehr) und keine Fehler.
 
 ## 4. Server lokal starten
+
+**Einfachste Variante** — ein Skript erledigt alles:
+
+```bash
+./start.sh
+```
+
+Das Skript installiert Abhaengigkeiten, startet den Server und oeffnet
+den Admin-Login automatisch im Browser. Passwort: `secret`.
+
+Server stoppen:
+
+```bash
+./stop.sh
+```
+
+### Plattform-Hinweise zu den Skripten
+
+- **macOS / Linux**: laeuft direkt.
+- **Windows (WSL2 / Ubuntu)**: laeuft genauso. Wenn du WSLg installiert
+  hast, oeffnet sich der Browser automatisch. Falls nicht, ruf einfach
+  selbst <http://127.0.0.1:8000/admin/login> im Windows-Browser auf —
+  das Skript druckt die URL in der Konsole.
+- **Windows ohne WSL (reines PowerShell / cmd)**: die Skripte sind
+  Bash und laufen dort nicht. Nutze stattdessen den **Manuell**-Block
+  weiter unten (uvicorn-Befehl in PowerShell mit `$env:LEHR_EVAL_...`
+  statt `LEHR_EVAL_...=...`).
+
+**Manuell** (falls dir Skripte unangenehm sind):
 
 ```bash
 LEHR_EVAL_ADMIN_PASSWORD=secret \
