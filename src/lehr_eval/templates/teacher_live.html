@@ -29,9 +29,9 @@
 {% set hints_by_phase = {
   "prepared":    "Die Administration muss die Evaluation zuerst aktivieren.",
   "active":      "Klick Starten, um die Beitrittsphase zu beginnen.",
-  "joining":     "Schueler koennen jetzt beitreten. Klick Item zeigen, sobald alle da sind.",
+  "joining":     "Schueler koennen jetzt beitreten. Klick Frage zeigen, sobald alle da sind.",
   "reading":     "Schueler sehen die Frage. Klick Antworten freigeben, sobald sie soweit sind.",
-  "answering":   "Schueler beantworten. Klick Naechstes Item, wenn alle fertig sind.",
+  "answering":   "Schueler beantworten. Klick Naechste Frage, wenn alle fertig sind.",
   "paused":      "Pausiert. Klick Fortsetzen, um weiterzumachen.",
   "closed":      "Diese Evaluation ist geschlossen. Es sind keine Aktionen mehr moeglich.",
   "deactivated": "Diese Evaluation ist deaktiviert.",
@@ -52,10 +52,10 @@
     <div class="phase">{{ phase_labels.get(state.phase, state.phase) }}</div>
     <div class="item-info">
       <div class="stat">
-        <span class="stat-label">Aktuelles Item</span>
+        <span class="stat-label">Aktuelle Frage</span>
         <span class="stat-value">
           {% if state.current_item_index is not none %}
-            Item {{ state.current_item_index + 1 }}
+            Frage {{ state.current_item_index + 1 }}
           {% else %}—{% endif %}
         </span>
       </div>
@@ -87,13 +87,13 @@
         <button type="submit" {% if "start" not in allowed %}disabled aria-disabled="true"{% endif %}>Starten</button>
       </form>
       <form method="post" action="/teacher/{{ evaluation.id }}/item">
-        <button type="submit" class="secondary" {% if "item" not in allowed %}disabled aria-disabled="true"{% endif %}>Item zeigen</button>
+        <button type="submit" class="secondary" {% if "item" not in allowed %}disabled aria-disabled="true"{% endif %}>Frage zeigen</button>
       </form>
       <form method="post" action="/teacher/{{ evaluation.id }}/answers">
         <button type="submit" class="secondary" {% if "answers" not in allowed %}disabled aria-disabled="true"{% endif %}>Antworten freigeben</button>
       </form>
       <form method="post" action="/teacher/{{ evaluation.id }}/finish">
-        <button type="submit" {% if "finish" not in allowed %}disabled aria-disabled="true"{% endif %}>Naechstes Item</button>
+        <button type="submit" {% if "finish" not in allowed %}disabled aria-disabled="true"{% endif %}>Naechste Frage</button>
       </form>
     </div>
     <div class="group">
