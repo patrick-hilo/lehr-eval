@@ -51,6 +51,26 @@ if [ -f "$PID_FILE" ]; then
   rm -f "$PID_FILE"
 fi
 
+# Defensive: auch verwaiste lehr_eval-uvicorn-Prozesse abraeumen,
+# z. B. wenn frueher manuell gestartet wurde und der PID-File fehlt.
+stale="$(pgrep -f "uvicorn.*lehr_eval.app:create_app" 2>/dev/null || true)"
+if [ -n "$stale" ]; then
+  warn "Stale lehr_eval-Server gefunden ($stale) — werden gestoppt."
+  pkill -f "uvicorn.*lehr_eval.app:create_app" 2>/dev/null || true
+  sleep 1
+fi
+
+# Port-Check: ist Port noch belegt, schlage anderen Port vor.
+if command -v lsof >/dev/null 2>&1; then
+  occupant="$(lsof -nP -iTCP:"$PORT" -sTCP:LISTEN -t 2>/dev/null | head -1 || true)"
+  if [ -n "$occupant" ]; then
+    fail "Port $PORT ist von Prozess $occupant belegt."
+    echo "   Setze einen anderen Port:  LEHR_EVAL_PORT=8001 ./start.sh"
+    echo "   Oder beende den Prozess:    kill $occupant"
+    exit 1
+  fi
+fi
+
 # --- Sync deps ---
 info "Installiere Abhaengigkeiten via 'uv sync'..."
 uv sync --quiet
