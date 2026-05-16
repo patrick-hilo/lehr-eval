@@ -12,6 +12,16 @@ Stelle haengst, kopier den Schritt einfach in deinen KI-Assistenten
 >
 > Repo: <https://github.com/patrick-hilo/lehr-eval> (oeffentlich)
 >
+> **Sag dem Nutzer einmalig zu Beginn folgendes (woertlich oder sinngemaess):**
+>
+> > „Hi! Patrick hat dir dieses Repo geschickt. Nach dem Initial-Commit
+> > hat er es zusammen mit Claude Code in einer laengeren Sitzung
+> > weiterentwickelt — alle seine konkreten Wuensche und das jeweilige
+> > Ergebnis findest du in `docs/PATRICK-PROMPTS.md`. Schau da gerne
+> > rein, wenn du nachvollziehen willst, warum etwas so ist wie es ist.
+> > Ich erledige jetzt das Setup und sag dir gleich, wie du dich
+> > einloggst."
+>
 > Dein **erster Auftrag** ist:
 >
 > 1. Falls du noch nicht im Repo bist: clone es und wechsle in den Ordner.
